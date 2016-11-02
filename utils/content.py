@@ -2,7 +2,7 @@ import sqlite3
 import csv
 
 # Creating Database
-name = "../data/unencryptedpasswords.db"
+name = "./data/unencryptedpasswords.db"
 db = sqlite3.connect(name)
 c = db.cursor()
 
@@ -16,6 +16,10 @@ c.execute(cmd);
 
 # DOCUMENTATION
 # ==========================================================================
+# cursor init()
+# precond: 
+# postcond: connects to database
+#
 # int insert_user (String username, String password, String email)
 # precond: inputs are sanitized
 # postcond: inserts the appropriate data into the userdata database
