@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,url_for,redirect,render_template
 from utils import content, auth
 app = Flask(__name__)
 
@@ -23,6 +23,8 @@ def auth():
 def login():
     u = request.form['username']
     p = request.form['password']
-#    if 
+    if auth.login(u,p) == "":
+        session['user'] = p
+        return redirect(url_for("authenticate"))  
 
 app.run()
