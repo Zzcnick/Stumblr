@@ -1,19 +1,6 @@
 import sqlite3
 import csv
 
-# Creating Database
-name = "./data/unencryptedpasswords.db"
-db = sqlite3.connect(name)
-c = db.cursor()
-
-# Creating Tables
-cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT, email TEXT)"
-c.execute(cmd);
-cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
-c.execute(cmd);
-cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
-c.execute(cmd);
-
 # DOCUMENTATION
 # ==========================================================================
 # cursor init()
@@ -31,15 +18,6 @@ c.execute(cmd);
 # postcond: inserts the appopriate data in the story_content database
 #           returns  0 if successful
 #                   -1 if unsuccessful
-#  
-#
-#
-#
-#
-#
-#
-#
-#
 #
 #
 #
@@ -48,13 +26,35 @@ c.execute(cmd);
 
 # Table Editing Functions
 # ==========================================================================
+# Creating Database
+def connect():
+    name = "./data/unencryptedpasswords.db"
+    db = sqlite3.connect(name)
+    c = db.cursor()
+
+    # Creating Tables
+    cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT, email TEXT)"
+    c.execute(cmd);
+    cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
+    c.execute(cmd);
+    cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
+    c.execute(cmd);
+    return db
+
+def disconnect(db):
+    db.commit()
+    db.close()
+    
 def insert_user(username, password, email):
     try:
+        db = connect()
+        c = db.cursor()
         req = "INSERT INTO userdata VALUES ('%s', '%s', '%s')"%(username,password,email)
         c.execute(req)
-        return 0
+        disconnect(db)
+        return "0"
     except:
-        return -1
+        return "-1"
 
 def insert_story(username, content):
     try:
@@ -66,7 +66,11 @@ def insert_story(username, content):
     except:
         return -1
 
+def hello():
+    return "hello"
 
+def getC():
+    return str(c)
 # Table Accessing Functions
 # ==========================================================================
 def get_last_story():
