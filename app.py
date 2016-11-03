@@ -1,23 +1,7 @@
 import sqlite3
-import csv
 from flask import Flask,url_for,redirect,render_template,session
 from utils import content, auth
 app = Flask(__name__)
-
-# Initializing Database
-# ==========================================================================
-'''
-name = "./data/unencryptedpasswords.db"
-db = sqlite3.connect(name)
-c = db.cursor()
-cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT, email TEXT)"
-c.execute(cmd);
-cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
-c.execute(cmd);
-cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
-c.execute(cmd);
-'''
-# ==========================================================================
 
 @app.route("/test/")
 def test():

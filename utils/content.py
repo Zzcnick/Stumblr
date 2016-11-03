@@ -58,19 +58,17 @@ def insert_user(username, password, email):
 
 def insert_story(username, content):
     try:
+        db = connect()
+        c = db.cursor()
         sid = get_last_story + 1
         seq = get_sequence(sid) + 1
         req = "INSERT INTO story_content VALUES ('%s', %s, '%s', %s)"%(username,sid,content,seq)
         c.execute(req)
-        return 0
+        db.close()
+        return "0"
     except:
-        return -1
+        return "-1"
 
-def hello():
-    return "hello"
-
-def getC():
-    return str(c)
 # Table Accessing Functions
 # ==========================================================================
 def get_last_story():
