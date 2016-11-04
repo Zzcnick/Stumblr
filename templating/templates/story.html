@@ -1,0 +1,29 @@
+<!-- Associated with "/s/<sid>" -->
+<!-- See testing.py for info -->
+{%extends "base.html" %}
+
+{%block title %}Actual Title of Story?{%endblock %}
+
+{%block navbar %}
+{{ super() }}
+<a href="/new/">New-Story Link</a>
+<a href="/logout/">Logout link</a>
+{%endblock %}
+
+{%block page_header %}A Story{%endblock %}
+
+{%block content %}
+Title of Story  by "author" <br>
+Started on "timestamp"<br><br>
+
+If the user has not added to the story:<br>
+Display latest addition w/ "Added by "user"" <br>
+Display Textfield for addition w/ submit button <br><br>
+
+If user hasn't added:<br>
+Display all additions w/ "Added by "user"" <br>
+<br>
+
+
+{%endblock %}
+
