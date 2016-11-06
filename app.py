@@ -1,4 +1,4 @@
-Bimport sqlite3
+import sqlite3
 from flask import Flask,url_for,redirect,render_template,session
 from utils import content, auth
 app = Flask(__name__)
@@ -38,7 +38,7 @@ def reg():
 
 @app.route("/home/")
 def home():
-    return render_template("home.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+    return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
 if __name__ == "__main__":
     app.debug = True
     app.run()
