@@ -1,4 +1,4 @@
-import sqlite3
+Bimport sqlite3
 from flask import Flask,url_for,redirect,render_template,session
 from utils import content, auth
 app = Flask(__name__)
@@ -48,19 +48,20 @@ def logout():
     session.pop('user')
     return redirect(url_for("authenticate"))
 
-@app.route("/new/"):
-    if 'user' in session:
-        return render_template("new.html")
-    else:
-        return redirect(url_for("authenticate"))
-
-@app.route("/new/newstory/" methods = "POST"):
+@app.route("/new/" methods =["POST", "GET"]):
+    if request.method == "GET":
+        if 'user' in session:
+            return render_template("new.html")
+        else:
+            return redirect(url_for("authenticate"))
+    elif request.method == "POST":
         title = request.form["title"]
         content = request.form["content"]
         u = session['user']
         content.addstory(u,title,content)
         return redirect(url_for("authenticate"))
-
+    else:
+        return error
 @app.route("/s/<int:sid>/")
 def story(sid):
     if 'user' not in session:
