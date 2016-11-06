@@ -57,7 +57,8 @@ def logout():
 @app.route("/new/newstory/" methods = "POST"):
         title = request.form["title"]
         content = request.form["content"]
-        content.addstory(title,content)
+        u = session['user']
+        content.addstory(u,title,content)
         return redirect(url_for("authenticate"))
 
 @app.route("/s/<int:sid>/")
