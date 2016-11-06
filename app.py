@@ -1,4 +1,4 @@
-Bimport sqlite3
+import sqlite3
 from flask import Flask,url_for,redirect,render_template,session
 from utils import content, auth
 app = Flask(__name__)
