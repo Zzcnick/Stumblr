@@ -32,9 +32,18 @@ import csv
 #           returns  0 if successful
 #                   -1 if unsuccessful
 #
-#
-#
-#
+# boolean user_has_contributed (String username, int sid)
+# precond: inputs are sanitized
+# postcond: checks if a user has contributed to a story by sid
+#           returns TRUE  if the user has contributed
+#           returns FALSE if the user has not contributed
+#           returns TRUE  if exception thrown
+# 
+# String get_story_title (int sid)
+# precond: 
+# postcond: returns corresponding story title given sid
+#           if story does not exist, returns "<NO TITLE>"
+# 
 # ==========================================================================
 
 # Table Editing Functions
@@ -86,6 +95,35 @@ def add_story(username, title, content):
         return "0"
     except:
         return "-1"
+
+def user_has_contributed(username, sid):
+    try: 
+        db = connect()
+        c = db.cursor()
+        req = "SELECT username FROM story_content WHERE storyID == %s"%(sid)
+        ret = False
+        data = c.execute(req)
+        for entry in data:
+            if entry[0] == username:
+                ret = True
+        disconnect(db)
+        return ret
+    except:
+        return True 
+
+def get_story_title(sid):
+    try:
+        db = connect()
+        c = db.cursor()
+        req = "SELECT title FROM story_id WHERE storyID == %s"%(sid)
+        data = c.execute(req)
+        ret = "NO TITLE"
+        for entry in data:
+            ret = entry[0] # Should be the only one
+        disconnect(db)
+        return ret
+    except:
+        return "NO TITLE"
 
 # Table Accessing Functions
 # ==========================================================================
