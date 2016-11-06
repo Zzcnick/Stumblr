@@ -1,77 +1,97 @@
-Bimport sqlite3
-from flask import Flask,url_for,redirect,render_template,session
+import sqlite3
+from flask import Flask,url_for,redirect,render_template,session, request
 from utils import content, auth
+
 app = Flask(__name__)
-app.secretkey = 
-@app.route("/test/")
-def test():
-    return content.insert_user("this", "is", "saddening")
+app.secret_key = "get to the choppa"
 
-@app.route("/")
-def authenticate():
-    if user in session:
-        return redirect(url_for("home"))
+@app.route("/", methods=["POST","GET"])
+def root():
+    if request.method == "GET":
+	if 'user' in session: 
+	    return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+	else: 
+	    return render_template("home.html")
     else:
-        return redirect(reder_template("login.html"))
-
-@app.route("/login/", methods = ["POST"])
-def auth():
+	return logreg() #user must be logged out (not forms in stories.html)
+    
+def logreg():
     if 'login' in request.form:
-        return login()
+	return login()
     else:
-        return reg()
-
+	return reg()
+    
 def login():
     u = request.form['username']
     p = request.form['password']
-    if auth.login(u,p) == "":
-        session['user'] = u
-        return redirect(url_for("home"))
-    else:
-        return auth.login(u,p)
+    if (u == "" or p == ""):
+	return render_template("home.html", message="You can't leave a field blank")
+
+    login_num = auth.login(u,p)
+    if login_num == 0:
+        print "logged in"
+	session['user'] = u
+	return render_template("stories.html")
+    elif login_num == 1:
+	return render_template("home.html", message="Wrong password") 
+    elif login_num == 2:	
+	return render_template("home.html", message="Username isn't registered")
     
 def reg():
     u = request.form['username']
     p = request.form['password']
-    auth.register(u,p)
-    return redirect(url_for(login))
+    if (u == "" or p == ""):
+	return render_template("home.html", message="You can't leave a field blank")
 
-@app.route("/home/")
-def home():
-    return render_template("home.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+    reg_num = auth.register(u,p)
+    if reg_num == 0:
+	return render_template("home.html", message="Successfully registered")
+    elif reg_num == 1:
+	return render_template("home.html", message="Username is already registered")
+    
+@app.route("/logout/")
+def logout():
+    if 'user' in session:
+	session.pop('user')
+    return redirect(url_for("root"))
+    
+@app.route("/new/", methods =["POST", "GET"])
+def new():
+    if request.method == "GET":
+	if 'user' in session:
+	    return render_template("new.html")
+	else:
+	    return redirect(url_for("root"))
+    else:
+	title = request.form["title"]
+	content = request.form["content"]
+	if title == "" or content == "":
+	    return render_template("new.html", message="Can't leave a field blank")
+	u = session['user']
+	content.addstory(u,title,content)
+	return redirect(url_for("root"))
+    
+@app.route("/s/<int:sid>/")
+def story(sid):
+    if request.method == "GET":
+	if 'user' in session:
+	    if content.user_has_contributed(sid):
+		return render_template("story.html", story = content.get_story_full(sid), contrib=True)
+	    else:
+		return render_template("story.html",story = content.get_story_last(sid), contrib=False)
+	else:
+	    return redirect(url_for("root"))
+    else: #adding an entry w/ POST
+	content = request.form["content"]
+	if content == "":
+	    return render_template("story.html", message="Can't leave this field blank", story = content.get_story_last(sid), contrib=False)
+	u = session['user']
+	# append entry to database
+	return render_template("story.html", content.get_story_full(sid), contrib=True)
+    
 if __name__ == "__main__":
     app.debug = True
     app.run()
-
-@app.route("/logout/")
-def logout():
-    session.pop('user')
-    return redirect(url_for("authenticate"))
-
-@app.route("/new/" methods =["POST", "GET"]):
-    if request.method == "GET":
-        if 'user' in session:
-            return render_template("new.html")
-        else:
-            return redirect(url_for("authenticate"))
-    elif request.method == "POST":
-        title = request.form["title"]
-        content = request.form["content"]
-        u = session['user']
-        content.addstory(u,title,content)
-        return redirect(url_for("authenticate"))
-    else:
-        return error
-@app.route("/s/<int:sid>/")
-def story(sid):
-    if 'user' not in session:
-        return redirect(url_for("authenticate"))
-    else:
-        if content.user_has_contributed(sid) == True:
-            return render_template("story.html", story = content.get_story_full(sid))
-        else:
-            return render_template("story.html",story = content.get_story_last(sid))
-
 
 
         

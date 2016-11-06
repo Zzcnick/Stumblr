@@ -111,7 +111,7 @@ def init():
     db = connect()
     c = db.cursor()
     # Creating Tables
-    cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT, email TEXT)"
+    cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT)"
     c.execute(cmd)
     cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
     c.execute(cmd)
@@ -131,11 +131,11 @@ def reset():
     c.execute(cmd)
     disconnect(db)
     
-def add_user(username, password, email):
+def add_user(username, password):
     try:
         db = connect()
         c = db.cursor()
-        req = "INSERT INTO userdata VALUES ('%s', '%s', '%s')"%(username,password,email)
+        req = "INSERT INTO userdata VALUES ('%s', '%s')"%(username,password)
         c.execute(req)
         disconnect(db)
         return True

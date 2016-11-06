@@ -1,0 +1,56 @@
+<!-- Associated with "/" -->
+{%extends "base.html" %}
+
+{%block custom_head %}
+<link href="/static/css/custom_home.css" rel="stylesheet">
+{%endblock %}
+
+{%block title %}Stumblr{%endblock %}
+
+{%block content %}
+<!-- BEGIN JUMBOTRON -->
+<div class="jumbotron">
+  <div class="container">
+    <h1>Stumblr</h1>
+    <p>A Collaborative Story Writing Website</p>
+  </div>
+</div>
+<!-- END JUMBOTRON -->
+
+<!-- LOGIN/REGISTER FORM -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div class="panel panel-login">
+	<div class="panel-body">
+	  <div class="row">
+	    <div class="col-lg-12">
+	      <p class="message">{{ message }}</p>
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="col-lg-12">
+	      
+	      <form id="login-form" action="" method="post" role="form" style="display: block;">
+		<!-- textfield -->
+		<div class="form-group"><input type="text" name="username" class="form-control" placeholder="Username" value=""></div>
+		<div class="form-group"><input type="password" name="password" class="form-control" placeholder="Password"></div>
+		<div class="form-group">
+		  <div class="row">
+		    <!-- buttons -->
+		    <div class="col-sm-6"><input type="submit" name="login" id="login-submit" class="form-control btn btn-login" value="Log In"></div>
+		    <div class="col-sm-6"><input type="submit" name="register" id="register-submit" class="form-control btn btn-register" value="Register"></div>
+		  </div>
+		</div>
+	      </form>
+	      
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock %}
+

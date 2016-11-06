@@ -1,0 +1,46 @@
+/* prevent overlap with navbar */
+body {
+    padding-top: 100px;
+    background: #3E4649;
+    color: #f7f7f7;
+    font-family: "Montserrat", sans-serif;
+} 
+ 
+.navbar-custom {
+    background: #2E2F31;
+    border:0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.navbar-custom .navbar-brand {
+    font-weight: 800;
+}
+
+.navbar-custom .navbar-header {
+    color: #f7f7f7;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+.navbar-custom .nav li a {
+    color: #f7f7f7;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+.navbar-custom .nav li a:hover {
+    background: #3E4649;
+}
+
+.panel-body {
+    background:#f7f7f7;
+}
