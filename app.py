@@ -26,21 +26,27 @@ def login():
     p = request.form['password']
     if (u == "" or p == ""):
 	return render_template("home.html", message="You can't leave a field blank")
-    if auth.login(u,p) == 0:
+
+    login_num = auth.login(u,p)
+    if login_num == 0:
         print "logged in"
 	session['user'] = u
 	return render_template("stories.html")
-    else:	
-	return render_template("home.html", message="Wrong password and/or username")
+    elif login_num == 1:
+	return render_template("home.html", message="Wrong password") 
+    elif login_num == 2:	
+	return render_template("home.html", message="Username isn't registered")
     
 def reg():
     u = request.form['username']
     p = request.form['password']
     if (u == "" or p == ""):
 	return render_template("home.html", message="You can't leave a field blank")
-    if auth.register(u,p) == 0:
+
+    reg_num = auth.register(u,p)
+    if reg_num == 0:
 	return render_template("home.html", message="Successfully registered")
-    else:
+    elif reg_num == 1:
 	return render_template("home.html", message="Username is already registered")
     
 @app.route("/logout/")

@@ -13,21 +13,17 @@ def login(username, password):
     c.execute(req, (username,))
     if c.fetchone(): #if registered
         pass_field = "SELECT password FROM userdata WHERE username == ?"
+        
         c.execute(pass_field, (username,))
         hashed_pass = hashlib.sha384(password).hexdigest()
         db_hashed_pass = c.fetchone()[0]
 
-        print hashed_pass
-        print db_hashed_pass
-
         if hashed_pass == db_hashed_pass:
-            return 0
+            return 0 #successful
         else:
-            print "-1"
-            return -1
+            return 1 #wrong password
     else:
-        print "-2"
-        return -2
+        return 2 #user doesnt exist
         
     
 #Register Function
@@ -43,7 +39,7 @@ def register(username, password):
         disconnect(db)
         return 0
     else:
-        return -1
+        return 1 #user already exists
 
 
 #=====CONNECTION FUNCTIONS=====#
