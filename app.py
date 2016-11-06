@@ -33,12 +33,12 @@ def login():
 def reg():
     u = request.form['username']
     p = request.form['password']
-    content.register(u,p)
+    auth.register(u,p)
     return redirect(url_for(login))
 
 @app.route("/home/")
 def home():
-    return render_template("home.html", usercontributed = content.get_user_stories(session['user'], usernotcontributed = content.get_no_user_stories(session['user'])))
+    return render_template("home.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
 if __name__ == "__main__":
     app.debug = True
     app.run()
