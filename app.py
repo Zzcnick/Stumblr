@@ -75,15 +75,15 @@ def new():
 def story(sid):
     if request.method == "GET":
 	if 'user' in session:
-	    if content.user_has_contributed(sid):
+	    if content.user_has_contributed(session['user'], sid):
 		return render_template("story.html", story = content.get_story_full(sid), contrib=True)
 	    else:
 		return render_template("story.html",story = content.get_story_last(sid), contrib=False)
 	else:
 	    return redirect(url_for("root"))
     else: #adding an entry w/ POST
-	content = request.form["content"]
-	if content == "":
+	cont = request.form["content"]
+	if cont == "":
 	    return render_template("story.html", message="Can't leave this field blank", story = content.get_story_last(sid), contrib=False)
 	u = session['user']
 	# append entry to database
