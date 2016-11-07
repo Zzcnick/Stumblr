@@ -65,8 +65,11 @@ def new():
     else:
 	title = request.form["title"]
 	cont = request.form["content"]
-	if title == "" or content == "":
-	    return render_template("new.html", message="Can't leave a field blank")
+        print request.form
+	if title == "":
+            return render_template("new.html", message="You can't leave a field blank")
+        if cont == "":
+	    return render_template("new.html", message="You can't leave a field blank")
 	u = session['user']
 	content.add_story(u,title,cont)
 	return redirect("/s/" + str(content.largest_sid()))
@@ -87,7 +90,7 @@ def story(sid):
         print request.form 
 	cont = request.form["content"]
 	if cont == "":
-	    return render_template("story.html", message="Can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
+	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
 	u = session['user']
 	content.extend_story(u, sid, cont)
         print content.get_story_full(sid)

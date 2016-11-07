@@ -6,6 +6,10 @@ p {
     color:#555;
 }
 
+#message {
+    text-align: center;
+}
+
 .btn-post {
     background-color: #59B2E0;
     outline: none;
