@@ -268,7 +268,7 @@ def get_no_user_stories(username):
                 indices[entry[0]] = -1; # invalid storyIDs
         ret = []
         for i in indices:
-            if i >= 0: # valid storyIDs
+            if i > 0: # valid storyIDs
                 ret += [[ i, get_title(i), get_story_last(i) ]]
         disconnect(db)
         return ret
@@ -282,7 +282,7 @@ def largest_sid():
     c = db.cursor()
     req = "SELECT storyID FROM story_id"
     data = c.execute(req)
-    maxSID = -1
+    maxSID = 0
     for entry in data: 
         if entry[0] > maxSID:
             maxSID = entry[0]
