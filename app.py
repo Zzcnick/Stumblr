@@ -76,6 +76,8 @@ def new():
     
 @app.route("/s/<int:sid>/", methods=["POST", "GET"])
 def story(sid):
+    if not content.sid_exists(sid):
+        return redirect("/")
     if request.method == "GET":
 	if 'user' in session:
 	    if content.user_has_contributed(session['user'], sid):
