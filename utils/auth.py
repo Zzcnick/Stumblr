@@ -5,8 +5,21 @@
 import sqlite3, hashlib
 
 #Login Function
-#boolean login(username [str], password [str])
+#int login(username [str], password [str])
 def login(username, password):
+    """
+    Attempts to log in the given user by checking given credentials against
+    the database, and reports on success.
+
+    Args:
+        username (str): username of user to log in
+        password (str): password of user to log in
+
+    Returns:
+        int: 0 if successful, 1 if given and stored passwords don't match, 
+            2 if username not in database
+    """
+
     db = connect()
     c = db.cursor()
     req = "SELECT username FROM userdata WHERE username == ?"
@@ -27,8 +40,20 @@ def login(username, password):
         
     
 #Register Function
-#boolean register(username [str], password [str])
+#int register(username [str], password [str])
 def register(username, password):
+    """
+    Attempts to register a user given a username and password,
+    and reports on success.
+
+    Args:
+        username (str): username of user to register
+        password (str): password of user to register
+
+    Returns:
+        int: 0 if successful, 1 if user already exists
+    """
+    
     db = connect()
     c = db.cursor()
     req = "SELECT username FROM userdata WHERE username == ?"
@@ -46,6 +71,14 @@ def register(username, password):
 
 #Connection connect()
 def connect():
+    """
+    Helper function that opens a connection to the app's
+    database, and returns a Connection object.
+
+    Returns:
+        Connection: sqlite3 conn object to database
+    """
+    
     name = "./data/unencryptedpasswords.db"
     db = sqlite3.connect(name)
     c = db.cursor()
@@ -53,10 +86,25 @@ def connect():
 
 #void disconnect(db [Connection])
 def disconnect(db):
+    """
+    Helper function that commits to the database and closes
+    the connection.
+
+    Args:
+        db (Connection): sqlite3 conn object to database
+    """
+    
     db.commit()
     db.close()
 
+#void init()
 def init():
+    """
+    Run only when this module is used as a standalone program,
+    this module initalizes the database but checking for the tables required
+    by the app, and creating them if they don't exist.
+    """
+        
     db = connect()
     c = db.cursor()
     # Creating Tables
@@ -68,6 +116,6 @@ def init():
     c.execute(cmd)
     disconnect(db)
 
-    
+#Specifies that the code is to be run only when program is standalone
 if (__name__ == "__main__"):
     init()
