@@ -17,8 +17,8 @@
 {%block content %}
 
 <div class = "container">
-  <h1>Stories you've Contributed to</h1>
-  <br>
+  <h1>Stories You've Added To</h1>
+  <hr>
 </div>
 
 {%for story in usercontributed %}
@@ -34,7 +34,7 @@
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>...{{ story[2] }}</p>
+		<p>{{ story[2] }}</p>
 	      </div>
 	    </div>
 	  </div>
@@ -48,8 +48,8 @@
 {%endfor %}
 
 <div class="container">
-  <h1>Stories you've not Contributed to</h1>
-  <br>
+  <h1>New Stories</h1>
+  <hr>
 </div>
 
 {%for story in usernotcontributed %}
@@ -61,11 +61,11 @@
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/1">{{ story[1]  }}</a></h1>
+	      <h1><a href="/s/{{ story [0] }}">{{ story[1]  }}</a></h1>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>{{ story[2] }}</p>
+		<p>...{{ story[2] }}</p>
 	      </div>
 	    </div>
 	  </div>
