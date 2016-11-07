@@ -94,7 +94,7 @@ def story(sid):
 	if cont == "":
 	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
 	u = session['user']
-	#print content.extend_story(u, sid, cont)
+        content.extend_story(u, sid, cont)
         #print content.get_story_full(sid)
 	return render_template("story.html", title=content.get_story_title(sid), story=content.get_story_full(sid), contrib=True)
     
