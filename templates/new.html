@@ -24,9 +24,9 @@
 	      <hr>
 	      <p>{{ message }}</p>
 	      <form action="/new/" method="post" role="form" style="display: block;">
-		<div class="form-group"><input type="text" name="title" class="form-control" placeholder="Title"></div>
+		<div class="form-group"><input type="text" name="title" class="form-control" placeholder="Title" required></div>
 		<div class="form-group">
-		  <textarea name="content" id="textarea" rows="7" class="form-control" placeholder="Write your story here"></textarea>
+		  <textarea name="content" id="textarea" rows="7" maxlength="150" class="form-control" placeholder="Write your story here" required></textarea>
 		</div>
 		<div class="form-group">
 		  <div class="row">
