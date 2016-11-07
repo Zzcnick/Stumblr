@@ -162,13 +162,13 @@ def extend_story(username, sid, content):
         c = db.cursor()
         ret = False
         if (sid_exists(sid)):
-            print "sid_exists"
+            #print "sid_exists"
             seq = largest_sequence(sid) + 1
-            print "sid2"
+            #print "sid2"
             req = "INSERT INTO story_content \
                    VALUES (?,?,?,?)"
             c.execute(req, (username, sid, content, seq))
-            print "sid3"
+            #print "sid3"
             ret = True
         disconnect(db)
         return ret
