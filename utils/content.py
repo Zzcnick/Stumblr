@@ -20,18 +20,28 @@ import csv
 # precond:
 # postcond: creates tables in database if they don't already exist
 #
-# int add_user (String username, String password, String email)
+# void reset()
+# precond: tables in database exist (init() has been previously called)
+# postcond: clears all entries in the database
+#
+# boolean add_user (String username, String password, String email)
 # precond: inputs are sanitized
 # postcond: inserts the appropriate data into the userdata database
-#           returns  0 if successful
-#                   -1 if unsuccessful
+#           returns TRUE  if successful
+#                   FALSE if unsuccessful
 #
-# int add_story (String username, String title, String content)
+# boolean add_story (String username, String title, String content)
 # precond: inputs are sanitized, content is less than 200 chars
 # postcond: inserts the appropriate data in the story_content database
-#           returns  0 if successful
-#                   -1 if unsuccessful
+#           returns TRUE  if successful
+#                   FALSE if unsuccessful
 #
+# boolean extend_story (String username, int sid, String content)
+# precond: inputs are sanitized, content is less than 200 chars
+# postcond: inserts the content into the appropriate story
+#           returns TRUE  if successful
+#           returns FALSE if unsuccessful
+# 
 # boolean user_has_contributed (String username, int sid)
 # precond: inputs are sanitized
 # postcond: checks if a user has contributed to a story by sid
@@ -42,8 +52,48 @@ import csv
 # String get_story_title (int sid)
 # precond: 
 # postcond: returns corresponding story title given sid
-#           if story does not exist, returns "<NO TITLE>"
-# 
+#           if story does not exist, returns "NO TITLE"
+#  
+# String get_story_last (int sid)
+# precond: 
+# postcond: returns latest update to a story given sid
+#           if story does not exist, returns "NO CONTENT"
+#
+# [ [ int, String, String ] ... ] get_user_stories (String username) 
+# precond: 
+# postcond: returns all the stories a user has contributed to
+#           in a 2D array where each entry's index 0 is the sid
+#                                            index 1 is the title
+#                                            index 2 is the full story
+#           returns an empty array if no such stories
+#
+# [ [ int, String, String ] ... ] get_no_user_stories (String username) 
+# precond: 
+# postcond: returns all the stories a user hasn't contributed to
+#           in a 2D array where each entry's index 0 is the sid
+#                                            index 1 is the title
+#                                            index 2 is the latest update
+#           returns an empty array if no such stories
+#
+# int largest_sid()
+# precond:
+# postcond: returns largest sid in database
+#           if no stories in database, returns -1
+#
+# int largest_sequence (int sid)
+# precond: 
+# postcond: returns largest sequence for a given sid
+#           if sid does not exist, returns -1
+#           
+# boolean sid_exists (int sid)
+# precond:
+# postcond: returns TRUE  if sid exists in database
+#           returns FALSE otherwise
+#  
+# String get_title (int sid)
+# precond:
+# postcond: returns title of story with corresponding sid
+#           if story does not exist, returns "NO TITLE"
 # ==========================================================================
 
 # Table Editing Functions
@@ -51,7 +101,6 @@ import csv
 def connect():
     name = "./data/unencryptedpasswords.db"
     db = sqlite3.connect(name)
-    c = db.cursor()
     return db
 
 def disconnect(db):
@@ -69,6 +118,18 @@ def init():
     cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
     c.execute(cmd)
     disconnect(db)
+
+def reset():
+    db = connect()
+    c = db.cursor()
+    # Delete Entries
+    cmd = "DELETE FROM userdata"
+    c.execute(cmd)
+    cmd = "DELETE FROM story_content"
+    c.execute(cmd)
+    cmd = "DELETE FROM story_id"
+    c.execute(cmd)
+    disconnect(db)
     
 def add_user(username, password):
     try:
@@ -77,24 +138,39 @@ def add_user(username, password):
         req = "INSERT INTO userdata VALUES ('%s', '%s')"%(username,password)
         c.execute(req)
         disconnect(db)
-        return "0"
+        return True
     except:
-        return "-1"
+        return False
 
 def add_story(username, title, content):
     try:
         db = connect()
         c = db.cursor()
         sid = largest_sid() + 1
-        seq = largest_sequence(sid) + 1
-        req = "INSERT INTO story_content VALUES ('%s', %s, '%s', %s)"%(username,sid,content,seq)
+        req = "INSERT INTO story_content VALUES ('%s', %s, '%s', %s)"%(username,sid,content,0)
         c.execute(req)
         req = "INSERT INTO story_id VALUES (%s, '%s')"%(sid,title)
         c.execute(req)
         disconnect(db)
-        return "0"
+        return True
     except:
-        return "-1"
+        return False
+
+def extend_story(username, sid, content):
+    try: 
+        db = connect()
+        c = db.cursor()
+        ret = False
+        if (sid_exists(sid)):
+            seq = largest_sequence(sid) + 1
+            req = "INSERT INTO story_content \
+                   VALUES ('%s', %s, '%s', %s)"%(username,sid,content,seq)
+            c.execute(req)
+            ret = True
+        disconnect(db)
+        return ret
+    except:
+        return False
 
 def user_has_contributed(username, sid):
     try: 
@@ -125,6 +201,79 @@ def get_story_title(sid):
     except:
         return "NO TITLE"
 
+def get_story_last(sid):
+    try:
+        maxSEQ = largest_sequence(sid)
+        db = connect()
+        c = db.cursor()
+        req = "SELECT content \
+               FROM story_content \
+               WHERE storyID == %s and sequence = %s"%(sid,maxSEQ)
+        data = c.execute(req)
+        ret = "NO CONTENT"
+        for entry in data:
+            ret = entry[0] # Should be the only one
+        disconnect(db)
+        return ret
+    except:
+        return "NO CONTENT"
+
+def get_story_full(sid):
+    try:
+        db = connect()
+        c = db.cursor()
+        req = "SELECT sequence, content \
+               FROM story_content \
+               WHERE storyID == %s \
+               ORDER BY sequence"%(sid)
+        data = c.execute(req)
+        retSTR = ""
+        for entry in data:
+            retSTR += entry[1].strip() + " "
+        disconnect(db)
+        return retSTR
+    except: 
+        return "ERROR"
+
+def get_user_stories(username):
+    try:
+        db = connect()
+        c = db.cursor()
+        req = "SELECT story_id.storyID, story_id.title \
+               FROM story_id, story_content \
+               WHERE story_content.username == '%s' \
+                 and story_id.storyID == story_content.storyID \
+               ORDER BY story_id.storyID"%(username)
+        data = c.execute(req)
+        ret = []
+        for entry in data:
+            ret += [[ entry[0], entry[1], get_story_full(entry[0]) ]]
+        disconnect(db)
+        return ret
+    except: 
+        return []
+
+def get_no_user_stories(username):
+    try:
+        db = connect()
+        c = db.cursor()
+        req = "SELECT story_id.storyID, title, story_content.username \
+               FROM story_id, story_content \
+               WHERE story_id.storyID == story_content.storyID"
+        data = c.execute(req)
+        indices = range(0, largest_sid() + 1) # storyIDs
+        for entry in data:
+            if entry[2] == username:
+                indices[entry[0]] = -1; # invalid storyIDs
+        ret = []
+        for i in indices:
+            if i > 0: # valid storyIDs
+                ret += [[ i, get_title(i), get_story_last(i) ]]
+        disconnect(db)
+        return ret
+    except: 
+        return []
+
 # Table Accessing Functions
 # ==========================================================================
 def largest_sid():
@@ -150,6 +299,29 @@ def largest_sequence(sid):
             maxSEQ = entry[0]
     disconnect(db)
     return maxSEQ
+
+def sid_exists(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT sequence FROM story_content WHERE storyID == %s"%(sid)
+    data = c.execute(req)
+    ret = False
+    for entry in data:
+        if entry[0] == sid:
+            ret = True
+    disconnect(db)
+    return ret
+
+def get_title(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT title FROM story_id WHERE storyID == %s"%(sid)
+    data = c.execute(req)
+    ret = "NO TITLE"
+    for entry in data:
+        ret = entry[0]
+    disconnect(db)
+    return ret;
 
 # Initialization
 # ==========================================================================
