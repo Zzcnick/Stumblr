@@ -67,7 +67,7 @@ def new():
 	cont = request.form["content"]
 
         title = title[0].upper() + title[1:]
-        cont = cont[0].upper() + title[1:]
+        cont = cont[0].upper() + cont[1:]
         
         #print request.form
 	if title == "":
