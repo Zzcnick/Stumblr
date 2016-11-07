@@ -16,11 +16,11 @@
 
 {%block content %}
 
-Contributed:{{ usercontributed }}<br><br>
+<div class = "container">
+  Contributed:<br>
+</div>
 
-Not contributed: {{ usernotcontributed }} <br>
-
-
+{%for story in usercontributed %}
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
@@ -29,11 +29,11 @@ Not contributed: {{ usernotcontributed }} <br>
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/1">Title of the Story</a></h1>
+	      <h1><a href="/s/{{ story[0] }}">{{ story[1]  }}</a></h1>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>This is the latest addition to the story </p>
+		<p>...{{ story[2] }}</p>
 	      </div>
 	    </div>
 	  </div>
@@ -43,6 +43,14 @@ Not contributed: {{ usernotcontributed }} <br>
   </div>
 </div>
 
+
+{%endfor %}
+
+<div class="container">
+  Not contributed: 
+</div>
+
+{%for story in usernotcontributed %}
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
@@ -51,11 +59,11 @@ Not contributed: {{ usernotcontributed }} <br>
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/1">Title of the Second Story</a></h1>
+	      <h1><a href="/s/1">{{ story[1]  }}</a></h1>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>This is the latest addition to the story </p>
+		<p>{{ story[2] }}</p>
 	      </div>
 	    </div>
 	  </div>
@@ -64,7 +72,7 @@ Not contributed: {{ usernotcontributed }} <br>
     </div>
   </div>
 </div>
-
+{%endfor %}
 
 {%endblock %}
 
