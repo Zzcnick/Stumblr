@@ -135,8 +135,8 @@ def add_user(username, password):
     try:
         db = connect()
         c = db.cursor()
-        req = "INSERT INTO userdata VALUES ('%s', '%s')"%(username,password)
-        c.execute(req)
+        req = "INSERT INTO userdata VALUES (?,?)"
+        c.execute(req, (username,password))
         disconnect(db)
         return True
     except:
@@ -147,10 +147,10 @@ def add_story(username, title, content):
         db = connect()
         c = db.cursor()
         sid = largest_sid() + 1
-        req = "INSERT INTO story_content VALUES ('%s', %s, '%s', %s)"%(username,sid,content,0)
-        c.execute(req)
-        req = "INSERT INTO story_id VALUES (%s, '%s')"%(sid,title)
-        c.execute(req)
+        req = "INSERT INTO story_content VALUES (?,?,?,?)"
+        c.execute(req, (username, sid, content, 0))
+        req = "INSERT INTO story_id VALUES (?,?)"
+        c.execute(req, (sid, title))
         disconnect(db)
         return True
     except:
@@ -164,9 +164,11 @@ def extend_story(username, sid, content):
         if (sid_exists(sid)):
             print "sid_exists"
             seq = largest_sequence(sid) + 1
+            print "sid2"
             req = "INSERT INTO story_content \
-                   VALUES ('%s', %s, '%s', %s)"%(username,sid,content,seq)
-            c.execute(req)
+                   VALUES (?,?,?,?)"
+            c.execute(req, (username, sid, content, seq))
+            print "sid3"
             ret = True
         disconnect(db)
         return ret
@@ -177,9 +179,9 @@ def user_has_contributed(username, sid):
     try: 
         db = connect()
         c = db.cursor()
-        req = "SELECT username FROM story_content WHERE storyID == %s"%(sid)
+        req = "SELECT username FROM story_content WHERE storyID == ?"
         ret = False
-        data = c.execute(req)
+        data = c.execute(req, (sid,))
         for entry in data:
             if entry[0] == username:
                 ret = True
@@ -192,8 +194,8 @@ def get_story_title(sid):
     try:
         db = connect()
         c = db.cursor()
-        req = "SELECT title FROM story_id WHERE storyID == %s"%(sid)
-        data = c.execute(req)
+        req = "SELECT title FROM story_id WHERE storyID == ?"
+        data = c.execute(req, (sid,))
         ret = "NO TITLE"
         for entry in data:
             ret = entry[0] # Should be the only one
@@ -209,8 +211,8 @@ def get_story_last(sid):
         c = db.cursor()
         req = "SELECT content \
                FROM story_content \
-               WHERE storyID == %s and sequence = %s"%(sid,maxSEQ)
-        data = c.execute(req)
+               WHERE storyID == ? and sequence = ?"
+        data = c.execute(req, (sid, maxSEQ))
         ret = "NO CONTENT"
         for entry in data:
             ret = entry[0] # Should be the only one
@@ -225,9 +227,9 @@ def get_story_full(sid):
         c = db.cursor()
         req = "SELECT sequence, content \
                FROM story_content \
-               WHERE storyID == %s \
-               ORDER BY sequence"%(sid)
-        data = c.execute(req)
+               WHERE storyID == ? \
+               ORDER BY sequence"
+        data = c.execute(req, (sid,))
         retSTR = ""
         for entry in data:
             retSTR += entry[1].strip() + " "
@@ -242,10 +244,10 @@ def get_user_stories(username):
         c = db.cursor()
         req = "SELECT story_id.storyID, story_id.title \
                FROM story_id, story_content \
-               WHERE story_content.username == '%s' \
+               WHERE story_content.username == ? \
                  and story_id.storyID == story_content.storyID \
-               ORDER BY story_id.storyID"%(username)
-        data = c.execute(req)
+               ORDER BY story_id.storyID"
+        data = c.execute(req, (username,))
         ret = []
         for entry in data:
             ret += [[ entry[0], entry[1], get_story_full(entry[0]) ]]
@@ -292,8 +294,8 @@ def largest_sid():
 def largest_sequence(sid):
     db = connect()
     c = db.cursor()
-    req = "SELECT sequence FROM story_content WHERE storyID == %s"%(sid)
-    data = c.execute(req)
+    req = "SELECT sequence FROM story_content WHERE storyID == ?"
+    data = c.execute(req, (sid,))
     maxSEQ = -1
     for entry in data: 
         if entry[0] > maxSEQ:
@@ -304,8 +306,8 @@ def largest_sequence(sid):
 def sid_exists(sid):
     db = connect()
     c = db.cursor()
-    req = "SELECT storyID FROM story_id WHERE storyID == %s"%(sid)
-    c.execute(req)
+    req = "SELECT storyID FROM story_id WHERE storyID == ?"
+    c.execute(req, (sid,))
     if c.fetchone():
         return True
     return False
@@ -313,8 +315,8 @@ def sid_exists(sid):
 def get_title(sid):
     db = connect()
     c = db.cursor()
-    req = "SELECT title FROM story_id WHERE storyID == %s"%(sid)
-    data = c.execute(req)
+    req = "SELECT title FROM story_id WHERE storyID == ?"
+    data = c.execute(req, (sid,) )
     ret = "NO TITLE"
     for entry in data:
         ret = entry[0]
