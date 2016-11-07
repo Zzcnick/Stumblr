@@ -65,6 +65,10 @@ def new():
     else:
 	title = request.form["title"]
 	cont = request.form["content"]
+
+        title = title[0].upper() + title[1:]
+        cont = cont[0].upper() + title[1:]
+        
         #print request.form
 	if title == "":
             return render_template("new.html", message="You can't leave a field blank")
