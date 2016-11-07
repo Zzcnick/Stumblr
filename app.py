@@ -31,7 +31,7 @@ def login():
     if login_num == 0:
         print "logged in"
 	session['user'] = u
-	return render_template("stories.html")
+	return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
     elif login_num == 1:
 	return render_template("home.html", message="Wrong password") 
     elif login_num == 2:	
@@ -64,30 +64,34 @@ def new():
 	    return redirect(url_for("root"))
     else:
 	title = request.form["title"]
-	content = request.form["content"]
+	cont = request.form["content"]
 	if title == "" or content == "":
 	    return render_template("new.html", message="Can't leave a field blank")
 	u = session['user']
-	content.addstory(u,title,content)
-	return redirect(url_for("root"))
+	content.add_story(u,title,cont)
+	return redirect("/s/" + str(content.largest_sid()))
     
-@app.route("/s/<int:sid>/")
+@app.route("/s/<int:sid>/", methods=["POST", "GET"])
 def story(sid):
     if request.method == "GET":
 	if 'user' in session:
 	    if content.user_has_contributed(session['user'], sid):
-		return render_template("story.html", story = content.get_story_full(sid), contrib=True)
+                print content.get_story_full(sid)
+		return render_template("story.html", title = content.get_story_title(sid), story = content.get_story_full(sid), contrib=True)
 	    else:
-		return render_template("story.html",story = content.get_story_last(sid), contrib=False)
+                print "notcont"
+		return render_template("story.html",title = content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
 	else:
 	    return redirect(url_for("root"))
     else: #adding an entry w/ POST
+        print request.form 
 	cont = request.form["content"]
 	if cont == "":
-	    return render_template("story.html", message="Can't leave this field blank", story = content.get_story_last(sid), contrib=False)
+	    return render_template("story.html", message="Can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
 	u = session['user']
-	# append entry to database
-	return render_template("story.html", content.get_story_full(sid), contrib=True)
+	content.extend_story(u, sid, cont)
+        print content.get_story_full(sid)
+	return render_template("story.html", title=content.get_story_title(sid), story=content.get_story_full(sid), contrib=True)
     
 if __name__ == "__main__":
     app.debug = True

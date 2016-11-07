@@ -162,6 +162,7 @@ def extend_story(username, sid, content):
         c = db.cursor()
         ret = False
         if (sid_exists(sid)):
+            print "sid_exists"
             seq = largest_sequence(sid) + 1
             req = "INSERT INTO story_content \
                    VALUES ('%s', %s, '%s', %s)"%(username,sid,content,seq)
@@ -303,14 +304,11 @@ def largest_sequence(sid):
 def sid_exists(sid):
     db = connect()
     c = db.cursor()
-    req = "SELECT sequence FROM story_content WHERE storyID == %s"%(sid)
-    data = c.execute(req)
-    ret = False
-    for entry in data:
-        if entry[0] == sid:
-            ret = True
-    disconnect(db)
-    return ret
+    req = "SELECT storyID FROM story_id WHERE storyID == %s"%(sid)
+    c.execute(req)
+    if c.fetchone():
+        return True
+    return False
 
 def get_title(sid):
     db = connect()
