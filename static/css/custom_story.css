@@ -3,6 +3,7 @@ h1 {
 }
 
 p {
+    word-wrap:break-word;
     color:#555;
 }
 
