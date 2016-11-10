@@ -161,7 +161,7 @@ def extend_story(username, sid, content):
         db = connect()
         c = db.cursor()
         ret = False
-        if (sid_exists(sid)):
+        if (sid_exists(sid) and not user_has_contributed(username, sid)):
             #print "sid_exists"
             seq = largest_sequence(sid) + 1
             #print "sid2"
