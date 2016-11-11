@@ -7,6 +7,9 @@ import datetime
 def timestamp(post_time):
     curr_time = int(time.time())
     diff = curr_time - post_time
+    if (diff == 0):
+        return "just now"
+    
     if (diff < 60):
         return "1 second ago" if diff==1 else "%d seconds ago"%(diff)
     

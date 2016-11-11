@@ -71,11 +71,8 @@
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		{%for i in range(story[2]|length) %}
-		<p>{{ story[2][i] }}</p>
-		<p class="text-muted">—added by <b>{{ story[3][i] }}</b> {{ timestamp(story[4][i]) }}</p>
-		{%endfor %}
-		<p>{{ story[4] }}</p>
+		<p>...{{ story[2][-1] }}</p>
+		<p class="text-muted">—added by <b>{{ story[3][-1] }}</b> {{ timestamp(story[4][-1]) }}</p>
 	      </div>
 	    </div>
 	  </div>
