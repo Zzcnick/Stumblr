@@ -9,10 +9,12 @@ p {
 
 .text-muted {
     font-size: smaller;
+    color: #999;
 }
 
 .addition {
-    padding: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .btn-post {
