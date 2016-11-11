@@ -10,6 +10,7 @@
 
 {%block navbar %}
 <li><a href="/new/">Start a Story</a></li>
+<li><a href="/">{{ session['user'] }}</a></li>
 <li><a href="/logout/">Logout</a></li>
 {%endblock %}
 
