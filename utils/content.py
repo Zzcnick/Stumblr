@@ -4,7 +4,7 @@ import csv
 # DOCUMENTATION
 # ==========================================================================
 # Database Schema:
-#     userdata      | username TEXT | password TEXT | email    TEXT |
+#     userdata      | username TEXT | password TEXT |
 #     story_content | username TEXT | storyID  INT  | content  TEXT | sequence INT  |
 #     story_id      | storyID  INT  | title    TEXT |
 #
@@ -24,7 +24,7 @@ import csv
 # precond: tables in database exist (init() has been previously called)
 # postcond: clears all entries in the database
 #
-# boolean add_user (String username, String password, String email)
+# boolean add_user (String username, String password)
 # precond: inputs are sanitized
 # postcond: inserts the appropriate data into the userdata database
 #           returns TRUE  if successful
@@ -59,21 +59,29 @@ import csv
 # postcond: returns latest update to a story given sid
 #           if story does not exist, returns "NO CONTENT"
 #
-# [ [ int, String, String ] ... ] get_user_stories (String username) 
+# [ [ int, String, String, [String, ...]  ] ... ] get_user_stories (String username) 
 # precond: 
 # postcond: returns all the stories a user has contributed to
 #           in a 2D array where each entry's index 0 is the sid
 #                                            index 1 is the title
 #                                            index 2 is the full story
+#                                            index 3 is the list of users who contributed to the story
 #           returns an empty array if no such stories
 #
-# [ [ int, String, String ] ... ] get_no_user_stories (String username) 
+# [ [ int, String, String, [String,, ...] ] ... ] get_no_user_stories (String username) 
 # precond: 
 # postcond: returns all the stories a user hasn't contributed to
 #           in a 2D array where each entry's index 0 is the sid
 #                                            index 1 is the title
 #                                            index 2 is the latest update
+#                                            index 3 is the list of users who contributed to the story
 #           returns an empty array if no such stories
+#
+# [ String, ... ] get_contributors (int sid)
+# precond:
+# postcond: returns an array of contributors to the post with sid
+#           each index of the array corresponds to the corresponding sequence number
+#           of the addition in the db
 #
 # int largest_sid()
 # precond:
@@ -250,7 +258,7 @@ def get_user_stories(username):
         data = c.execute(req, (username,))
         ret = []
         for entry in data:
-            ret += [[ entry[0], entry[1], get_story_full(entry[0]) ]]
+            ret += [[ entry[0], entry[1], get_story_full(entry[0]), get_contributors(entry[0]) ]]
         disconnect(db)
         return ret
     except: 
@@ -271,12 +279,23 @@ def get_no_user_stories(username):
         ret = []
         for i in indices:
             if i > 0: # valid storyIDs
-                ret += [[ i, get_title(i), get_story_last(i) ]]
+                ret += [[ i, get_title(i), get_story_last(i), get_contributors(i) ]]
         disconnect(db)
         return ret
     except: 
         return []
 
+# dev branch additional functions
+# ==========================================================================
+def get_contributors(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT username FROM story_content WHERE storyID=? ORDER BY sequence"
+    c.execute(req, (sid,))
+    ret = [uname[0] for uname in c.fetchall()]
+    return ret
+
+    
 # Table Accessing Functions
 # ==========================================================================
 def largest_sid():
