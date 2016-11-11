@@ -86,21 +86,21 @@ def story(sid):
 	if 'user' in session:
 	    if content.user_has_contributed(session['user'], sid):
                 #print content.get_story_full(sid)
-		return render_template("story.html", title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid),contrib=True)
+		return render_template("story.html", title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = content.get_timestamps(sid), contrib=True)
 	    else:
                 #print "notcont"
-		return render_template("story.html",title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=False)
+		return render_template("story.html",title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = content.get_timestamps(sid), contrib=False)
 	else:
 	    return redirect(url_for("root"))
     else: #adding an entry w/ POST
         #print request.form 
 	cont = request.form["content"]
 	if cont == "":
-	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=False)
+	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = content.get_timestamps(sid), contrib=False)
 	u = session['user']
         content.extend_story(u, sid, cont)
         #print content.get_story_full(sid)
-	return render_template("story.html", title=content.get_story_title(sid), story=content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=True)
+	return render_template("story.html", title=content.get_story_title(sid), story=content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = content.get_timestamps(sid), contrib=True)
     
 if __name__ == "__main__":
     app.debug = True

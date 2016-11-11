@@ -1,11 +1,12 @@
 import sqlite3
 import csv
+import time
 
 # DOCUMENTATION
 # ==========================================================================
 # Database Schema:
 #     userdata      | username TEXT | password TEXT |
-#     story_content | username TEXT | storyID  INT  | content  TEXT | sequence INT  |
+#     story_content | username TEXT | storyID  INT  | content  TEXT | sequence INT | timestamp INT
 #     story_id      | storyID  INT  | title    TEXT |
 
 # database connect()
@@ -66,6 +67,7 @@ import csv
 #                                            index 1 is the title
 #                                            index 2 is the list of contributions
 #                                            index 3 is the list of users who contributed to the story
+#                                            index 4 is the list of contribution timestamps
 #           returns an empty array if no such stories
 
 # [ [ int, String, [String, ...], [String, ...] ] ... ] get_no_user_stories (String username) 
@@ -75,6 +77,7 @@ import csv
 #                                            index 1 is the title
 #                                            index 2 is the list of contributions
 #                                            index 3 is the list of users who contributed to the story
+#                                            index 4 is the list of contribution timestamps
 #           returns an empty array if no such stories
 
 # [ String, ... ] get_contributors (int sid)
@@ -86,6 +89,12 @@ import csv
 # [ String, ... ] get_contributions (int sid)
 # precond:
 # postcond: returns an array of contributions to the post with sid
+#           each index of the array corresponds to the corresponding sequence number
+#           of the addition in the db
+
+# [ int, ... ] get_timestamps (int sid)
+# precond:
+# postcond: returns an array of timestamps of the contributions to the post with sid
 #           each index of the array corresponds to the corresponding sequence number
 #           of the addition in the db
 
@@ -127,7 +136,7 @@ def init():
     # Creating Tables
     cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT)"
     c.execute(cmd)
-    cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
+    cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER, timestamp INTEGER)"
     c.execute(cmd)
     cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
     c.execute(cmd)
@@ -161,8 +170,8 @@ def add_story(username, title, content):
         db = connect()
         c = db.cursor()
         sid = largest_sid() + 1
-        req = "INSERT INTO story_content VALUES (?,?,?,?)"
-        c.execute(req, (username, sid, content, 0))
+        req = "INSERT INTO story_content VALUES (?,?,?,?,?)"
+        c.execute(req, (username, sid, content, 0, int(time.time())))
         req = "INSERT INTO story_id VALUES (?,?)"
         c.execute(req, (sid, title))
         disconnect(db)
@@ -180,8 +189,8 @@ def extend_story(username, sid, content):
             seq = largest_sequence(sid) + 1
             #print "sid2"
             req = "INSERT INTO story_content \
-                   VALUES (?,?,?,?)"
-            c.execute(req, (username, sid, content, seq))
+                   VALUES (?,?,?,?,?)"
+            c.execute(req, (username, sid, content, seq, int(time.time())))
             #print "sid3"
             ret = True
         disconnect(db)
@@ -264,7 +273,7 @@ def get_user_stories(username):
         data = c.execute(req, (username,))
         ret = []
         for entry in data:
-            ret += [[ entry[0], entry[1], get_contributions(entry[0]), get_contributors(entry[0]) ]]
+            ret += [[ entry[0], entry[1], get_contributions(entry[0]), get_contributors(entry[0]), get_timestamps(entry[0]) ]]
         disconnect(db)
         return ret
     except: 
@@ -285,7 +294,7 @@ def get_no_user_stories(username):
         ret = []
         for i in indices:
             if i > 0: # valid storyIDs
-                ret += [[ i, get_title(i), get_contributions(i), get_contributors(i) ]]
+                ret += [[ i, get_title(i), get_contributions(i), get_contributors(i), get_timestamps(i) ]]
         disconnect(db)
         return ret
     except: 
@@ -307,6 +316,14 @@ def get_contributions(sid):
     req = "SELECT content FROM story_content WHERE storyID=? ORDER BY sequence"
     c.execute(req, (sid,))
     ret = [cont[0] for cont in c.fetchall()]
+    return ret    
+
+def get_timestamps(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT timestamp FROM story_content WHERE storyID=? ORDER BY sequence"
+    c.execute(req, (sid,))
+    ret = [k[0] for k in c.fetchall()]
     return ret    
 
 # Table Accessing Functions
