@@ -6,10 +6,11 @@
 <link href="/static/css/custom_story.css" rel="stylesheet">
 {%endblock %}
 
-{%block title %}Title of the Story{%endblock %}
+{%block title %}{{ title }}{%endblock %}
 
 {%block navbar %}
 <li><a href="/new/">Start a Story</a></li>
+<li><a href="/">{{ session['user'] }}</a></li>
 <li><a href="/logout/">Logout</a></li>
 {%endblock %}
 
@@ -25,10 +26,21 @@
 	    <div class="col-lg-12">
 	      
 	      <h1>{{ title }}</h1>
+	      <p class="text-muted">—created by <b>{{ contributors[0] }}</b> {{ timestamps[0] }}</p>
 	      <!-- display story -->
 	      <hr>
 	      <div class="col-sm-12">
-		<p>{%if contrib==False %}...{%endif %}{{ story }}</p>
+		{%if contrib %}
+		
+		{%for i in range(story|length)%}
+		<p>{{ story[i] }}</p>
+		<p class="text-muted">—added by <b>{{ contributors[i] }}</b> {{ timestamps[i] }}</p>
+		{%endfor %}
+		
+		{%else %}
+		<p>...{{ story[-1] }}</p>
+		<p class="text-muted">—added by <b>{{ contributors[-1] }}</b> {{ timestamps[-1] }}</p>
+		{%endif %}
 	      </div>
 	      <br>
 	      <!-- end display -->

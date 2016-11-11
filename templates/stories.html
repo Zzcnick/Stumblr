@@ -6,10 +6,11 @@
 <link href="/static/css/custom_stories.css" rel="stylesheet">
 {%endblock %}
 
-{%block title %}Latest Posts{%endblock %}
+{%block title %}Stumblr{%endblock %}
 
 {%block navbar %}
 <li><a href="/new/">Start a Story</a></li>
+<li><a href="/">{{ session['user'] }}</a></li>
 <li><a href="/logout/">Logout</a></li>
 {%endblock %}
 
@@ -21,7 +22,7 @@
   <hr>
 </div>
 
-{%for story in usercontributed %}
+{%for story in usercontributed[::-1] %}
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
@@ -30,11 +31,15 @@
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/{{ story[0] }}">{{ story[1]  }}</a></h1>
+	      <h1><a href="/s/{{ story[0] }}">{{ story[1] }}</a></h1>
+	      <p class="text-muted">—created by <b>{{ story[3][0] }}</b> {{ timestamp(story[4][0]) }}</p>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>{{ story[2] }}</p>
+		{%for i in range(story[2]|length) %}
+		<p>{{ story[2][i] }}</p>
+		<p class="text-muted">—added by <b>{{ story[3][i] }}</b> {{ timestamp(story[4][i]) }}</p>
+		{%endfor %}
 	      </div>
 	    </div>
 	  </div>
@@ -52,7 +57,7 @@
   <hr>
 </div>
 
-{%for story in usernotcontributed %}
+{%for story in usernotcontributed[::-1] %}
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
@@ -61,11 +66,13 @@
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/{{ story [0] }}">{{ story[1]  }}</a></h1>
+	      <h1><a href="/s/{{ story [0] }}">{{ story[1] }}</a></h1>
+	      <p class="text-muted">—created by <b>{{ story[3][0] }}</b> {{ timestamp(story[4][0]) }}</p>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>...{{ story[2] }}</p>
+		<p>...{{ story[2][-1] }}</p>
+		<p class="text-muted">—added by <b>{{ story[3][-1] }}</b> {{ timestamp(story[4][-1]) }}</p>
 	      </div>
 	    </div>
 	  </div>

@@ -7,6 +7,10 @@ p {
     color:#555;
 }
 
+.text-muted {
+    font-size: smaller;
+}
+
 .btn-post {
     background-color: #59B2E0;
     outline: none;

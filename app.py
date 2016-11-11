@@ -1,6 +1,6 @@
 import sqlite3
-from flask import Flask,url_for,redirect,render_template,session, request
-from utils import content, auth
+from flask import Flask, url_for, redirect, render_template, session, request
+from utils import content, auth, timestamp
 
 app = Flask(__name__)
 app.secret_key = "get to the choppa"
@@ -8,12 +8,13 @@ app.secret_key = "get to the choppa"
 @app.route("/", methods=["POST","GET"])
 def root():
     if request.method == "GET":
-	if 'user' in session: 
-	    return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+	if 'user' in session:
+            # need to pass timestamp function
+	    return render_template("stories.html", timestamp = timestamp.timestamp, usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']) )
 	else: 
 	    return render_template("home.html")
     else:
-	return logreg() #user must be logged out (not forms in stories.html)
+	return logreg() #user must be logged out (no forms in stories.html)
     
 def logreg():
     if 'login' in request.form:
@@ -31,7 +32,7 @@ def login():
     if login_num == 0:
         #print "logged in"
 	session['user'] = u
-	return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+	return render_template("stories.html", timestamp = timestamp.timestamp, usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
     elif login_num == 1:
 	return render_template("home.html", message="Wrong password") 
     elif login_num == 2:	
@@ -45,9 +46,9 @@ def reg():
 
     reg_num = auth.register(u,p)
     if reg_num == 0:
-	return render_template("home.html", message="Successfully registered")
+	return render_template("home.html", message="Successfully registered!")
     elif reg_num == 1:
-	return render_template("home.html", message="Username is already registered")
+	return render_template("home.html", message="That username is already registered")
     
 @app.route("/logout/")
 def logout():
@@ -84,23 +85,17 @@ def story(sid):
         return redirect("/")
     if request.method == "GET":
 	if 'user' in session:
-	    if content.user_has_contributed(session['user'], sid):
-                #print content.get_story_full(sid)
-		return render_template("story.html", title = content.get_story_title(sid), story = content.get_story_full(sid), contrib=True)
-	    else:
-                #print "notcont"
-		return render_template("story.html",title = content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
+            has_contrib = content.user_has_contributed(session['user'], sid)
+	    return render_template("story.html", title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = [timestamp.timestamp(d) for d in content.get_timestamps(sid)], contrib=has_contrib)
 	else:
 	    return redirect(url_for("root"))
     else: #adding an entry w/ POST
         #print request.form 
 	cont = request.form["content"]
-	if cont == "":
-	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
 	u = session['user']
         content.extend_story(u, sid, cont)
         #print content.get_story_full(sid)
-	return render_template("story.html", title=content.get_story_title(sid), story=content.get_story_full(sid), contrib=True)
+	return render_template("story.html", title=content.get_story_title(sid), story=content.get_contributions(sid), contributors = content.get_contributors(sid), timestamps = [timestamp.timestamp(d) for d in content.get_timestamps(sid)], contrib=True)
     
 if __name__ == "__main__":
     app.debug = True

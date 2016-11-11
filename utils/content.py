@@ -1,95 +1,118 @@
 import sqlite3
 import csv
+import time
 
 # DOCUMENTATION
 # ==========================================================================
 # Database Schema:
-#     userdata      | username TEXT | password TEXT | email    TEXT |
-#     story_content | username TEXT | storyID  INT  | content  TEXT | sequence INT  |
+#     userdata      | username TEXT | password TEXT |
+#     story_content | username TEXT | storyID  INT  | content  TEXT | sequence INT | timestamp INT
 #     story_id      | storyID  INT  | title    TEXT |
-#
+
 # database connect()
 # precond: database is not open
 # postcond: connects to database and returns the database object
-#
+
 # void disconnect()
 # precond: database is open
 # postcond: takes a database object, saves it, and closes it
-#
+
 # void init() 
 # precond:
 # postcond: creates tables in database if they don't already exist
-#
+
 # void reset()
 # precond: tables in database exist (init() has been previously called)
 # postcond: clears all entries in the database
-#
-# boolean add_user (String username, String password, String email)
+
+# boolean add_user (String username, String password)
 # precond: inputs are sanitized
 # postcond: inserts the appropriate data into the userdata database
 #           returns TRUE  if successful
 #                   FALSE if unsuccessful
-#
+
 # boolean add_story (String username, String title, String content)
 # precond: inputs are sanitized, content is less than 200 chars
 # postcond: inserts the appropriate data in the story_content database
 #           returns TRUE  if successful
 #                   FALSE if unsuccessful
-#
+
 # boolean extend_story (String username, int sid, String content)
 # precond: inputs are sanitized, content is less than 200 chars
 # postcond: inserts the content into the appropriate story
 #           returns TRUE  if successful
 #           returns FALSE if unsuccessful
-# 
+
 # boolean user_has_contributed (String username, int sid)
 # precond: inputs are sanitized
 # postcond: checks if a user has contributed to a story by sid
 #           returns TRUE  if the user has contributed
 #           returns FALSE if the user has not contributed
 #           returns TRUE  if exception thrown
-# 
+
 # String get_story_title (int sid)
 # precond: 
 # postcond: returns corresponding story title given sid
 #           if story does not exist, returns "NO TITLE"
-#  
+
 # String get_story_last (int sid)
 # precond: 
 # postcond: returns latest update to a story given sid
 #           if story does not exist, returns "NO CONTENT"
-#
-# [ [ int, String, String ] ... ] get_user_stories (String username) 
+
+# [ [ int, String, [String, ...], [String, ...]  ] ... ] get_user_stories (String username) 
 # precond: 
 # postcond: returns all the stories a user has contributed to
 #           in a 2D array where each entry's index 0 is the sid
 #                                            index 1 is the title
-#                                            index 2 is the full story
+#                                            index 2 is the list of contributions
+#                                            index 3 is the list of users who contributed to the story
+#                                            index 4 is the list of contribution timestamps
 #           returns an empty array if no such stories
-#
-# [ [ int, String, String ] ... ] get_no_user_stories (String username) 
+
+# [ [ int, String, [String, ...], [String, ...] ] ... ] get_no_user_stories (String username) 
 # precond: 
 # postcond: returns all the stories a user hasn't contributed to
 #           in a 2D array where each entry's index 0 is the sid
 #                                            index 1 is the title
-#                                            index 2 is the latest update
+#                                            index 2 is the list of contributions
+#                                            index 3 is the list of users who contributed to the story
+#                                            index 4 is the list of contribution timestamps
 #           returns an empty array if no such stories
-#
+
+# [ String, ... ] get_contributors (int sid)
+# precond:
+# postcond: returns an array of contributors to the post with sid
+#           each index of the array corresponds to the corresponding sequence number
+#           of the addition in the db
+
+# [ String, ... ] get_contributions (int sid)
+# precond:
+# postcond: returns an array of contributions to the post with sid
+#           each index of the array corresponds to the corresponding sequence number
+#           of the addition in the db
+
+# [ int, ... ] get_timestamps (int sid)
+# precond:
+# postcond: returns an array of timestamps of the contributions to the post with sid
+#           each index of the array corresponds to the corresponding sequence number
+#           of the addition in the db
+
 # int largest_sid()
 # precond:
 # postcond: returns largest sid in database
 #           if no stories in database, returns -1
-#
+
 # int largest_sequence (int sid)
 # precond: 
 # postcond: returns largest sequence for a given sid
 #           if sid does not exist, returns -1
-#           
+
 # boolean sid_exists (int sid)
 # precond:
 # postcond: returns TRUE  if sid exists in database
 #           returns FALSE otherwise
-#  
+
 # String get_title (int sid)
 # precond:
 # postcond: returns title of story with corresponding sid
@@ -113,7 +136,7 @@ def init():
     # Creating Tables
     cmd = "CREATE TABLE IF NOT EXISTS userdata (username TEXT, password TEXT)"
     c.execute(cmd)
-    cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER)"
+    cmd = "CREATE TABLE IF NOT EXISTS story_content (username TEXT, storyID INTEGER, content TEXT, sequence INTEGER, timestamp INTEGER)"
     c.execute(cmd)
     cmd = "CREATE TABLE IF NOT EXISTS story_id (storyID INTEGER, title TEXT)"
     c.execute(cmd)
@@ -147,8 +170,8 @@ def add_story(username, title, content):
         db = connect()
         c = db.cursor()
         sid = largest_sid() + 1
-        req = "INSERT INTO story_content VALUES (?,?,?,?)"
-        c.execute(req, (username, sid, content, 0))
+        req = "INSERT INTO story_content VALUES (?,?,?,?,?)"
+        c.execute(req, (username, sid, content, 0, int(time.time())))
         req = "INSERT INTO story_id VALUES (?,?)"
         c.execute(req, (sid, title))
         disconnect(db)
@@ -166,8 +189,8 @@ def extend_story(username, sid, content):
             seq = largest_sequence(sid) + 1
             #print "sid2"
             req = "INSERT INTO story_content \
-                   VALUES (?,?,?,?)"
-            c.execute(req, (username, sid, content, seq))
+                   VALUES (?,?,?,?,?)"
+            c.execute(req, (username, sid, content, seq, int(time.time())))
             #print "sid3"
             ret = True
         disconnect(db)
@@ -250,7 +273,7 @@ def get_user_stories(username):
         data = c.execute(req, (username,))
         ret = []
         for entry in data:
-            ret += [[ entry[0], entry[1], get_story_full(entry[0]) ]]
+            ret += [[ entry[0], entry[1], get_contributions(entry[0]), get_contributors(entry[0]), get_timestamps(entry[0]) ]]
         disconnect(db)
         return ret
     except: 
@@ -271,11 +294,37 @@ def get_no_user_stories(username):
         ret = []
         for i in indices:
             if i > 0: # valid storyIDs
-                ret += [[ i, get_title(i), get_story_last(i) ]]
+                ret += [[ i, get_title(i), get_contributions(i), get_contributors(i), get_timestamps(i) ]]
         disconnect(db)
         return ret
     except: 
         return []
+
+# dev branch additional functions
+# ==========================================================================
+def get_contributors(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT username FROM story_content WHERE storyID=? ORDER BY sequence"
+    c.execute(req, (sid,))
+    ret = [uname[0] for uname in c.fetchall()]
+    return ret
+
+def get_contributions(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT content FROM story_content WHERE storyID=? ORDER BY sequence"
+    c.execute(req, (sid,))
+    ret = [cont[0] for cont in c.fetchall()]
+    return ret    
+
+def get_timestamps(sid):
+    db = connect()
+    c = db.cursor()
+    req = "SELECT timestamp FROM story_content WHERE storyID=? ORDER BY sequence"
+    c.execute(req, (sid,))
+    ret = [k[0] for k in c.fetchall()]
+    return ret    
 
 # Table Accessing Functions
 # ==========================================================================
