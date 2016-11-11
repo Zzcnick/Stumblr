@@ -11,6 +11,10 @@ p {
     font-size: smaller;
 }
 
+.addition {
+    padding: 8px;
+}
+
 #message {
     text-align: center;
 }

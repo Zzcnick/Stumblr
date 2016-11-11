@@ -30,22 +30,27 @@
 	      <!-- display story -->
 	      <hr>
 	      <div class="col-sm-12">
-		{%if contrib %}
-		
-		{%for i in range(story|length)%}
-		<p>{{ story[i] }}</p>
-		<p class="text-muted">—added by <b>{{ contributors[i] }}</b> {{ timestamps[i] }}</p>
-		{%endfor %}
-		
-		{%else %}
-		<p>...{{ story[-1] }}</p>
-		<p class="text-muted">—added by <b>{{ contributors[-1] }}</b> {{ timestamps[-1] }}</p>
-		{%endif %}
+		  {%if contrib %}
+		  
+		  {%for i in range(story|length)%}
+		  <div class="addition">
+		    <p>{{ story[i] }}</p>
+		    <p class="text-muted">—added by <b>{{ contributors[i] }}</b> {{ timestamps[i] }}</p>
+		  </div>
+		  {%endfor %}
+		  
+		  {%else %}
+		  <div class="addition">
+		    <p>...{{ story[-1] }}</p>
+		    <p class="text-muted">—added by <b>{{ contributors[-1] }}</b> {{ timestamps[-1] }}</p>
+		  </div>
+		  {%endif %}
 	      </div>
-	      <br>
+
 	      <!-- end display -->
 	      {%if contrib==False %}
 	      <p id="message">{{ message }}</p>
+	      
 	      <form action="." method="post" role="form" style="display: block;">
 		<div class="form-group">
 		  <textarea name="content" id="textarea" rows="7" maxlength="150" class="form-control" placeholder="Write your addition to this story here" required></textarea>
@@ -57,6 +62,7 @@
 		</div>
 	      </form>
 	      {%endif %}
+	      
 	    </div>
 	  </div>
 	</div>

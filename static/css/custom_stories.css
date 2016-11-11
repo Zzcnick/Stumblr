@@ -11,6 +11,10 @@ p {
     font-size: smaller;
 }
 
+.addition {
+    padding: 8px;
+}
+
 .btn-post {
     background-color: #59B2E0;
     outline: none;
