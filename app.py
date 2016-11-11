@@ -9,7 +9,7 @@ app.secret_key = "get to the choppa"
 def root():
     if request.method == "GET":
 	if 'user' in session: 
-	    return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']))
+	    return render_template("stories.html", usercontributed = content.get_user_stories(session['user']), usernotcontributed = content.get_no_user_stories(session['user']) )
 	else: 
 	    return render_template("home.html")
     else:
@@ -86,21 +86,21 @@ def story(sid):
 	if 'user' in session:
 	    if content.user_has_contributed(session['user'], sid):
                 #print content.get_story_full(sid)
-		return render_template("story.html", title = content.get_story_title(sid), story = content.get_story_full(sid), contrib=True)
+		return render_template("story.html", title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid),contrib=True)
 	    else:
                 #print "notcont"
-		return render_template("story.html",title = content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
+		return render_template("story.html",title = content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=False)
 	else:
 	    return redirect(url_for("root"))
     else: #adding an entry w/ POST
         #print request.form 
 	cont = request.form["content"]
 	if cont == "":
-	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_story_last(sid), contrib=False)
+	    return render_template("story.html", message="You can't leave this field blank", title=content.get_story_title(sid), story = content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=False)
 	u = session['user']
         content.extend_story(u, sid, cont)
         #print content.get_story_full(sid)
-	return render_template("story.html", title=content.get_story_title(sid), story=content.get_story_full(sid), contrib=True)
+	return render_template("story.html", title=content.get_story_title(sid), story=content.get_contributions(sid), contributors = content.get_contributors(sid), contrib=True)
     
 if __name__ == "__main__":
     app.debug = True

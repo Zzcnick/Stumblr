@@ -6,7 +6,7 @@
 <link href="/static/css/custom_stories.css" rel="stylesheet">
 {%endblock %}
 
-{%block title %}Latest Posts{%endblock %}
+{%block title %}Stumblr{%endblock %}
 
 {%block navbar %}
 <li><a href="/new/">Start a Story</a></li>
@@ -30,13 +30,15 @@
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/{{ story[0] }}">{{ story[1]  }}</a></h1>
-	      <p class="text-muted" style="text-align:left;">created by {{ story[3][0] }}</p>
+	      <h1><a href="/s/{{ story[0] }}">{{ story[1] }}</a></h1>
+	      <p class="text-muted">—created by {{ story[3][0] }}</p>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>{{ story[2] }}</p>
-		<p class="text-muted" style="text-align:right;">added by {{ story[3][-1] }}</p>
+		{%for i in range(story[2]|length) %}
+		<p>{{ story[2][i] }}</p>
+		<p class="text-muted">—added by {{ story[3][i] }}</p>
+		{%endfor %}
 	      </div>
 	    </div>
 	  </div>
@@ -63,13 +65,15 @@
 	  <div class="row">
 	    <div class="col-lg-12">
 	      
-	      <h1><a href="/s/{{ story [0] }}">{{ story[1]  }}</a></h1>
-	      <p class="text-muted" style="text-align:left;">created by {{ story[3][0] }}</p>
+	      <h1><a href="/s/{{ story [0] }}">{{ story[1] }}</a></h1>
+	      <p class="text-muted">—created by {{ story[3][0] }}</p>
 	      <!-- display story -->
 	      <hr>
 	      <div>
-		<p>...{{ story[2] }}</p>
-		<p class="text-muted" style="text-align:right;">added by {{ story[3][-1] }}</p>
+		{%for i in range(story[2]|length) %}
+		<p>{{ story[2][i] }}</p>
+		<p class="text-muted">—added by {{ story[3][i] }}</p>
+		{%endfor %}
 	      </div>
 	    </div>
 	  </div>
